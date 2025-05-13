@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Parser</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Resume Parser and Analyzer</h1>
+        <input type="file" id="resumeUpload" accept=".pdf,.docx">
+        <button onclick="uploadResume()">Upload</button>
+        <div id="uploadStatus"></div>
+        <div id="results" class="hidden">
+            <h2>Parsed Data</h2>
+            <pre id="parsedData"></pre>
+            <h2>Skill Cloud</h2>
+            <div id="skillCloud"></div>
+            <h2>Experience Timeline</h2>
+            <div id="experienceTimeline"></div>
+            <h2>Education Summary</h2>
+            <div id="educationSummary"></div>
+        </div>
+    </div>
+    <script>
+        async function uploadResume() {
+            const fileInput = document.getElementById('resumeUpload');
+            const uploadStatus = document.getElementById('uploadStatus');
+            const resultsDiv = document.getElementById('results');
+            const parsedDataElement = document.getElementById('parsedData');
+
+            if (!fileInput.files[0]) {
+                uploadStatus.textContent = 'Please select a file.';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('resume', fileInput.files[0]);
+
+            uploadStatus.textContent = 'Uploading...';
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    uploadStatus.textContent = 'Upload successful!';
+                    parsedDataElement.textContent = JSON.stringify(data, null, 2);
+                    resultsDiv.classList.remove('hidden');
+                    // Implement functions to generate skill cloud, timeline, and education summary using 'data'
+                    // For example:
+                    // generateSkillCloud(data.skills);
+                    // generateExperienceTimeline(data.experience);
+                    // generateEducationSummary(data.education);
+                } else {
+                    const error = await response.text();
+                    uploadStatus.textContent = `Upload failed: ${error}`;
+                }
+            } catch (error) {
+                uploadStatus.textContent = `An error occurred: ${error}`;
+            }
+        }
+
+        // Placeholder functions for visualization (to be implemented)
+        function generateSkillCloud(skills) {
+            const skillCloudDiv = document.getElementById('skillCloud');
+            skillCloudDiv.textContent = JSON.stringify(skills); // Basic display
+        }
+
+        function generateExperienceTimeline(experience) {
+            const experienceTimelineDiv = document.getElementById('experienceTimeline');
+            experienceTimelineDiv.textContent = JSON.stringify(experience); // Basic display
+        }
+
+        function generateEducationSummary(education) {
+            const educationSummaryDiv = document.getElementById('educationSummary');
+            educationSummaryDiv.textContent = JSON.stringify(education); // Basic display
+        }
+    </script>
+</body>
+</html>
